@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+   KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<html>
+
+<head>
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+  <link rel="stylesheet" type="text/css" href="css/index.css" />
+  <title>CDSimpleSample</title>
+</head>
+
+<script type="text/javascript" src="js/index.js"></script>
+<!-- 加载js，js加载耗时，因此增加加载完成回调 -->
+<script type="text/javascript">
+  function loadScript(url, callback) {
+    let script = document.createElement("script");
+    script.type = "text/javascript";
+    if (typeof (callback) != "undefined") {
+      if (script.readyState) {
+        script.onreadystatechange = function () {
+          if (script.readyState == "loaded" || script.readyState == "complete") {
+            script.onreadystatechange = null;
+            callback();
+          }
+        };
+      } else {
+        script.onload = function () {
+          callback();
+        };
+      }
+    }
+    script.src = url;
+    document.head.appendChild(script);
+  }
+</script>
+
+<script>
+
+  var times = 1;
+  function queryUserInfo() {
+
+    if (!!cordova && !!cordova.exec) {
+      alert("Cordova exec Ready at times: " + times);
+      getUserInfo();
+      return;
+    }
+    
+    times++;
+    setTimeout(() => {
+      queryUserInfo();
+    }, 500);
+  }
+
+  var u = window.navigator.userAgent;
+  var isAndroid = u.indexOf("Android") > -1 || u.indexOf("Adr") > -1;
+  var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+  function initializeUtils() {
+    loadScript("./cpicApp/utils.js", () => {
+      Utils.init("com.ios.cdsample");
+      // queryUserInfo();
+    })
+  }
+  function onBodyLoad() {
+    // vConsole
+    loadScript("https://cdn.bootcss.com/vConsole/3.3.0/vconsole.min.js", () => {
+      var vConsole = new VConsole();
+    })
+    // cordova && utils
+    if (isiOS) {
+      loadScript("./cpicApp/ios/cordova.js", () => {
+        initializeUtils()
+      })
+    }
+    if (isAndroid) {
+      loadScript("./cpicApp/android/cordova.js", () => {
+        initializeUtils();
+      })
+    }
+  }
+
+  function getDeviceId() {
+    Utils.getDeviceId(res=>{
+      alert("设备号："+res);
+    })
+  }
+    
+  function goback() {
+    cordova.exec(null, null, "CDVEMPBridge", "goBack", ["kkkkk"]);
+  }
+  function _goToMainAppClearUserInfo() {
+    Utils.goToMainApp();
+  }
+  function _goToMainApp() {
+    Utils.goToMainApp(false);
+  }
+  
+  function refresh() {
+    window.location.href = "./index.html";
+    console.log("Window refresh")
+  }
+  function testClipboard() {
+    Utils.copyToClipboard("我是cordova111", function () {
+      Utils.getClipboardContent(function (content) {
+        alert(content);
+      });
+    });
+  }
+  function _testRooted() {
+    Utils.isRooted(function (result) {
+      alert(result);
+    });
+  }
+  function _testTel() {
+    Utils.tel("13112341234");
+  }
+  function _testSendMessage() {
+    Utils.sendMessage("13112341234", "hhhhhhhh");
+  }
+  function _testZipImage() {
+    var path = Utils.userRootPath + "test.png";
+    var toPath = Utils.userRootPath + "test1.png";
+    Utils.zipImage(path, "100", toPath, function (res) {
+      alert(res);
+    });
+  }
+  function _testImageBase64() {
+    var path = Utils.userRootPath + "test1.png";
+    //var path = "/sdcard/123.jpg";
+    Utils.imageToBase64(
+      path,
+      function (result) {
+        alert(result);
+      },
+      function (error) {
+        alert(error);
+      }
+    );
+  }
+  function _testZipfile() {
+    var rootPath = Utils.userRootPath;
+    var finalPath = rootPath + "test1.zip";
+    var arr = [];
+    arr.push(rootPath + "test.png");
+    arr.push(rootPath + "test1.png");
+    Utils.zipFile(finalPath, arr, function (result) {
+      alert(result);
+    });
+  }
+  function _testUnzipfile() {
+    var finalPath = Utils.userRootPath + "test1";
+    var sourceFile = Utils.userRootPath + "test1.zip";
+    Utils.unzipFile(sourceFile, finalPath, function (result) {
+      alert(result);
+    });
+  }
+  
+  function getUserInfo() {
+    Utils.getUserInfo(function (res) {
+      alert(res);
+    });
+  }
+  function getSSOToken() {
+    Utils.getSSOToken(function (res) {
+      alert(res);
+    });
+  }
+  function isLogin() {
+    Utils.isLogin(function (res) {
+      alert(res);
+    });
+  }
+  function logout() {
+    Utils.logout();
+  }
+
+  function _testShare2WX() {
+    var params = {
+      shareTo: "Wechat",
+      shareType: "image",
+      imageUrl: "http://img.zcool.cn/community/01f09e577b85450000012e7e182cf0.jpg@1280w_1l_2o_100sh.jpg",
+      title: "这是title",
+      text: "这是内容11111",
+      url: "http://www.baidu.com"
+    };
+    ShareSDK.shareToWechat(params, function (res) {
+      alert(res + "----");
+    });
+  }
+  function _testOneKeyShare() {
+    var params = {
+      shareType: "image",
+      imageUrl:
+        "http://img.zcool.cn/community/01f09e577b85450000012e7e182cf0.jpg@1280w_1l_2o_100sh.jpg",
+      title: "这是title",
+      text: "这是内容",
+      url: "http://www.baidu.com"
+    };
+    ShareSDK.oneKeyShare(params, function (result) {
+      alert(result);
+    });
+  }
+
+  function getVersion() {
+    Utils.appInfo((res) => {
+      let appInfo = typeof(res) == "object" ? res : JSON.parse(res)
+      alert("{version: " + appInfo.appVersion + ", build: " + appInfo.buildNumber + "}")
+    });
+  }
+  function testVerifySecurityToken() {
+    Utils.verifySecurityToken(function (result) {
+      alert("verity:" + result);
+    });
+  }
+
+  function testGetSecurityToken() {
+    Utils.getSecurityToken(function (result) {
+      alert("token:" + result);
+    });
+  }
+  function testSecurityLogin() {
+    Utils.securityLogin(
+      function (result) {
+        alert("token:" + result);
+      },
+      function (result) {
+        alert("failure:" + result);
+      }
+    );
+  }
+  function openBrowser() {
+    Utils.browser("http://www.baidu.com");
+  }
+
+  function setGlobalValue() {
+    Utils.setGlobalValue("cd_key", "im cd value");
+  }
+  function getGlobalValue() {
+    Utils.getGlobalValue("cd_key", false, res => {
+      alert(res);
+    });
+  }
+  function getGlobalValueDelete() {
+    Utils.getGlobalValue("cd_key", true, res => {
+      alert(res);
+    });
+  }
+  
+  function closeWebview() {
+    Utils.closeWebview();
+  }
+
+  function _openTEP() {
+    var url = "http" + "://" + "192.168" + ".7.174:8080" + "/jsapp1/index.html";
+    Utils.openTEP(
+      {
+        url: url,
+        title: "太e赔",
+        showBack: true
+      },
+      res => { },
+      res => {
+        alert(res);
+      }
+    );
+  }
+  
+  function _toh5regist() {
+    var params = {
+      url: "http://www.baidu.com",
+      showNav: true,
+      navParams: {
+        showTitle: true,
+        title: "太e赔",
+        showBack: "true",
+        showProgress: "true"
+      }
+    };
+    Utils.toH5Regist(params);
+  }
+  function _toh5regist2() {
+    var params = {
+      url: "http://www.baidu.com",
+      showNav: false
+    };
+    Utils.toH5Regist(params);
+  }
+
+  function _openWebview() {
+    var params = {
+      // url: "https" + "://" + "ydbq.cpic" + ".com.cn" + "/pad/safeboxNew/static/policy-list-visit.html" + "?creditcard=142622199510252027",
+      // url: "http" + "://" + "ee.yunpintech" + ".com/live/play/liveplay" + "?video=8",
+      url: "http" + "s" + "://" + "m.baidu" + ".com",
+      showNav: true,
+      showShareBtn: true,
+      showTitle: true,
+      navParams: {
+        // title: "太e赔",
+        // title: "云频直播",
+        showBack: "true",
+        showProgress: "true"
+      }
+    };
+    Utils.openWebview(params);
+  }
+  function _webviewBack() {
+    Utils.webViewBack();
+    }
+    
+  function _testLoginLogic() {
+    Utils.hideNav();
+    Utils.isLogin(res => {
+      if (res) {
+        Utils.verifySecurityToken((istoken) => { //二次认证
+          console.log('短时token是否有效：' + istoken);
+          if (istoken == 'false') { //token无效
+            Utils.securityLogin((token) => {
+              if (token !== 'false') {
+                // 二次认证成功
+                alert("二次认证成功")
+                Utils.showNav();
+              }
+            }, (error) => {
+              // 二次认证失败
+              alert("二次认证失败");
+              Utils.showNav();
+            })
+          } else {
+            // 二次认证有效
+            alert("二次认证有效");
+            Utils.showNav();
+          }
+        })
+      } else {
+        alert("注册");
+        Utils.regist({
+          source: "toApp",
+          appName: "cjyl",
+          url: "https" + "://" + "weixinweb.cj-" + "pension.com.cn" + "/app-fund/pages/index.html"
+        }) // 登录
+      }
+    })
+  }
+  
+  function _funcTest() {
+    Utils.appInfo((res) => {
+      if (typeof(res) == "object") {
+        console.log("Object: " + JSON.stringify(res))
+        alert("Object: " + JSON.stringify(res));
+      } else {
+        console.log("String: " + res)
+        alert("String: " + res);
+      }
+    });
+  }
+
+  function _toappregist() {
+    var params = {
+      appName: "jkx",
+      url: "https://jtapp.cj-pension.com.cn/app-fund/pages/index.html"
+    };
+    Utils.toAppRegist(params);
+  }
+  function _openHdCall() {
+    var params = {
+      aaa: "3333"
+    };
+    Utils.openHdCall(params, res => {
+      console.log(res + "===77777777777");
+      alert(JSON.stringify(res));
+    });
+  }
+
+  function _openHdCall2() {
+    var params = {
+      aaa: "3333"
+    };
+    Utils.openHdCall2(params, res => {
+      console.log(res + "===222222222222");
+      alert(JSON.stringify(res));
+    });
+  }
+  
+  function _setSecurityPwd() {
+    var params = "设置";
+    Utils.setSecurityPwd(params, res => {
+      console.log(res + "===999999");
+      alert(JSON.stringify(res));
+    });
+  }
+  function _updateSecurityPwd() {
+    var params = "修改";
+    Utils.updateSecurityPwd(params, res => {
+      console.log(res + "===999999");
+      alert(JSON.stringify(res));
+    });
+  }
+  function _isSecurityPwdEnable() {
+    var params = "0";
+    Utils.isSecurityPwdEnable(params, res => {
+      console.log(res + "===999999");
+      alert(JSON.stringify(res));
+    });
+  }
+
+  function _setSecurityPwd() {
+    var params = "设置";
+    Utils.setSecurityPwd(params, res => {
+      console.log(res + "===999999");
+      alert(JSON.stringify(res));
+    });
+  }
+  function _updateSecurityPwd() {
+    var params = "修改";
+    Utils.updateSecurityPwd(params, res => {
+      console.log(res + "===999999");
+      alert(JSON.stringify(res));
+    });
+  }
+  
+  function _closeSecurityPwd() {
+    var params = "关闭安全密码";
+    Utils.closeSecurityPwd(params, res => {
+      console.log(res + "===999999");
+      alert(JSON.stringify(res));
+    });
+  }
+  function _launchWXMiniProgram() {
+    // 跳转太保森林小程序
+    Utils.launchWXMiniProgram("wxf9eba61cdce8df65", "gh_df698efc9652", "pages/index-forest/index.html?originCode=CPIC_APP", 0);
+  }
+  function _saveImageToAlbum() {
+    var url = "http://hiphotos.baidu.com/space/wh%3D220%2C60/sign=ed8e71fc1d4c510fae91ea185269091b/3812b31bb051f819ecd2ac7eddb44aed2e73e70b.jpg";
+    Utils.saveImageToAlbum(url, res => {
+      // alert("saveBase64ImageToAlbum: " + typeof(res) + " > "+ res);
+      alert("图片保存" + (res === 'true' ? "成功" : "失败"))
+    });
+  }
+  function _aliLiveness() {
+    var params = {
+      source: "sx",
+      fileName: "test.jpg",
+      needBase64: false,
+      complexity: 3,
+      voicePrompt: false,
+      livingAuth: true,
+      appToken: "f34046aa40c34eb4a5aeb928881bbbb4",
+      appId: "f648733e8b4f4ace9d1e232c3b813b5b",
+      extends: {
+        folder: "face_camera",
+        waterMaker: "仅用于XXX本人在太平洋保险公司投保时使用",
+        livingParams: {
+          appToken: "e03c0af6fa9f42c5bb3d28f31782ba03",
+          appId: "8ebda9d6e9e94ca1adbd11d080cc453f",
+          idNum: "340621199103017811",
+          idName: "杨晨晨"
+        }
+      }
+    };
+    Utils.openInteractiveLiveness(params, res => {
+      // document.getElementById("hello").innerText = JSON.stringify(res);
+      alert('old:'+JSON.stringify(res))
+    });
+  }
+  function _aliLivenessNew() {
+    var params = {
+      source: "sx",
+      fileName: "test.jpg",
+      needBase64: false,
+      complexity: 3,
+      voicePrompt: false,
+      livingAuth: true,
+      appToken: "f34046aa40c34eb4a5aeb928881bbbb4",
+      appId: "f648733e8b4f4ace9d1e232c3b813b5b",
+      bizNo: "DSDSDSDSSDSDSDSDSD",
+      extends: {
+        folder: "face_camera",
+        waterMaker: "仅用于XXX本人在太平洋保险公司投保时使用",
+        livingParams: {
+          appToken: "e03c0af6fa9f42c5bb3d28f31782ba03",
+          appId: "8ebda9d6e9e94ca1adbd11d080cc453f",
+          idNum: "340621199103017811",
+          idName: "杨晨晨"
+        }
+      }
+    };
+    Utils.openInteractiveLivenessNew(params, res => {
+      // document.getElementById("hello").innerText = JSON.stringify(res);
+      alert('new:'+JSON.stringify(res))
+    });
+  }
+  function _aliSilent() {
+    var params = {
+      source: "bxx",
+      fileName: "asd123qwe.png",
+      needBase64: true,
+      appToken: "f34046aa40c34eb4a5aeb928881bbbb4",
+      appId: "f648733e8b4f4ace9d1e232c3b813b5b",
+      extends: {
+        waterMaker: "仅用于XXX本人在太平洋保险公司投保时使用"
+      }
+    };
+    Utils.openSilentLiveness(params, res => {
+      document.getElementById("hello").innerText = JSON.stringify(res);
+    });
+  }
+  function _aliSilentNew() {
+    var params = {
+      source: "bxx",
+      fileName: "asd123qwe.png",
+      needBase64: true,
+      appToken: "f34046aa40c34eb4a5aeb928881bbbb4",
+      appId: "f648733e8b4f4ace9d1e232c3b813b5b",
+      bizNo: "",
+      extends: {
+        waterMaker: "仅用于XXX本人在太平洋保险公司投保时使用"
+      }
+    };
+    Utils.openSilentLivenessNew(params, res => {
+      document.getElementById("hello").innerText = JSON.stringify(res);
+    });
+  }
+  function _startHuotiMediaRecorder() {
+    var params = {
+      folder: "folderName",
+      fileName: "fileName",
+      validate_data: "1234"
+    };
+    Utils.startHuotiMediaRecorder(params, res => {
+      document.getElementById("hello").innerText = JSON.stringify(res);
+    });
+  }
+  function _openIdOcr() {
+    var params = {};
+    Utils.openIdOcr(params, res => {
+      document.getElementById("hello").innerText = JSON.stringify(res);
+    });
+  }
+  function _openTrainOcr() {
+    Utils.openTrainOcr(res => {
+      document.getElementById("hello").innerText = JSON.stringify(res);
+    });
+  }
+  
+  function _openBankOcr() {
+    var params = {
+      folder: "folderName",
+      fileName: "openBankOcr",
+      reminder: ""
+    };
+    Utils.openBankOcr(params, res => {
+      document.getElementById("hello").innerText = JSON.stringify(res);
+    });
+  }
+  function _saveBase64ImageToAlbum() {
+    var base64 = "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";
+    Utils.saveBase64ImageToAlbum(base64, res => {
+      // alert("saveBase64ImageToAlbum: " + typeof(res) + " > "+ res);
+      alert("图片保存" + (res === 'true' ? "成功" : "失败"))
+    });
+  }
+
+  function _getLocation() {
+    Utils.getLocationWithPolicy(3, (success) => {
+      console.log(success)
+    }, (failure) => {
+      console.log(failure)
+      alert(failure)
+        // console.log("GetLocationWithPolicy code:", failure.code, ", Message:", failure.message)
+        // alert("GetLocationWithPolicy code: " + failure.code + ", Message: " + failure.message);
+    });
+  }
+
+  function _getAddress() {
+    var point = {
+      latitude: 41,
+      longitude: 120
+    };
+
+    Utils.getAddress(point, res => {
+      alert(res);
+    });
+  }
+
+  function updateOnChange(that){
+    
+  }
+  
+  function openGwkfapp1(){
+    Utils.openGwkfapp1({
+      "telNum":"15122990099",
+      // "name":"amer",
+      // "channel":"cjyl"
+    },res => {
+      console.log('openGwkfapp1:'+res)
+    });
+  }
+    
+    function openCarDamageCamera() {
+        Utils.openCarDamageOcr(res => {
+            alert(res)
+        });
+    }
+    
+    function openCarDamageOcr() {
+        Utils.openCarDamageOcrWithAIDetect({
+            taskId: "a57a6b8c037d4ffdaaf1812010b1dbdd",
+            url: "https://m.baidu.com",
+            maxImgNum: 4,
+        }, (res) => {
+            alert(JSON.stringify(res))
+        });
+    }
+</script>
+
+<body onload="onBodyLoad()">
+  <div class="app">
+    CDSimpleSample
+    <div style="overflow: scroll">
+      <input type="button" onclick="goback()" value="点击返回" style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="打开小程序" onclick="_launchWXMiniProgram()"
+        style="width: 35%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="前往视频通话" onclick="_openHdCall()" style="width: 35%; height: 30px; margin: 5px;" />
+      <input type="button" value="前往视频通话2" onclick="_openHdCall2()" style="width: 35%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="toh5前往注册" onclick="_toh5regist()" style="width: 40%; height: 30px; margin: 5px;" />
+      <input type="button" value="toh5前往注册无标题栏" onclick="_toh5regist2()"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="toapp前往注册" onclick="_toappregist()" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="打开太e赔" onclick="_openTEP()" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" value="closeWebview" onclick="closeWebview()"
+        style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="setGlobalValue" onclick="setGlobalValue()"
+        style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="getGlobalValue" onclick="getGlobalValue()"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <input type="button" value="getGlobalValue并删除" onclick="getGlobalValueDelete()"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" value="测试系统浏览器打开" onclick="openBrowser()" style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="testSecurityLogin()" value="测试二次登录"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="testGetSecurityToken()" value="测试获取二次登录token"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="testVerifySecurityToken()" value="校验二次登录token"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="refresh()" value="点击刷新111112" style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="testClipboard()" value="测试剪切板" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_testZipfile()" value="测试压缩" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_testUnzipfile()" value="测试解压" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_testImageBase64()" value="测试获取图片base64"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_testZipImage()" value="测试压缩图片" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_testSendMessage()" value="测试发短信" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_testTel()" value="测试打电话" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_testRooted()" value="测试是否越狱" style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_testShare2WX()" value="测试sharesdk分享微信2222"
+        style="width: 45%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_testOneKeyShare()" value="测试sharesdk一键分享"
+        style="width: 45%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="getUserInfo()" value="获取用户信息" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="getSSOToken()" value="获取token" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="isLogin()" value="是否登录" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="logout()" value="登出" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="getVersion()" value="测试获取版本信息" style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_goToMainAppClearUserInfo()" value="前往首页并登出"
+        style="width: 35%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_goToMainApp()" value="前往首页不登出" style="width: 35%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_setSecurityPwd()" value="设置手势密码测试"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_updateSecurityPwd()" value="修改手势密码测试"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_isSecurityPwdEnable()" value="判断有无设置手势密码"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_closeSecurityPwd()" value="关闭安全密码"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_saveImageToAlbum()" value="保存图片到相册"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_saveBase64ImageToAlbum()" value="保存base64图片到相册"
+        style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_startHuotiMediaRecorder()" value="活体语音"
+        style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_openIdOcr()" value="身份证OCR" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_openBankOcr()" value="银行卡OCR" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_openTrainOcr()" value="火车票OCR" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_getLocation()" value="getLocation"
+        style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_getAddress()" value="getAddress" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_aliLiveness()" value="阿里动作活体" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_aliSilent()" value="阿里静默活体" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_aliLivenessNew()" value="阿里动作活体New"
+        style="width: 35%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_aliSilentNew()" value="阿里静默活体New" style="width: 35%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_openWebview()" value="openWebview"
+        style="width: 27%; height: 30px; margin: 5px;" />
+        <input type="button" onclick="_webviewBack()" value="webviewBack"
+          style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="_testLoginLogic()" value="登录流程测试" style="width: 27%; height: 30px; margin: 5px;" />
+      <input type="button" onclick="_funcTest()" value="功能测试" style="width: 27%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="goback()" value="点击返回" style="width: 40%; height: 30px; margin: 5px;" />
+      <br />
+      <input type="button" onclick="getDeviceId()" value="获取设备号" style="width: 40%;height: 30px;margin: 5px;" />
+      <br />
+      <input type="file" onchange="updateOnChange(this)" value="type=file" accept="application/pdf" style="width: 40%;height: 30px;margin: 5px;" />
+      <br />
+      <input type="button" onclick="openGwkfapp1()" value="openGwkfapp1" style="width: 40%;height: 30px;margin: 5px;" />
+      
+      <br />
+      <input type="button" onclick="openCarDamageCamera()" value="车损拍照" style="width: 40%;height: 30px;margin: 5px;" />
+      <input type="button" onclick="openCarDamageOcr()" value="车损OCR" style="width: 40%;height: 30px;margin: 5px;" />
+      <br /><br />
+      <br /><br />
+      <br /><br />
+    </div>
+  </div>
+</body>
+
+</html>
