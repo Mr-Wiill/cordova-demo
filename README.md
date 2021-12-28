@@ -1,0 +1,3 @@
+# SimpleSample功能说明
+
+SimpleSample为精简删除三方Cordova插件的样例工程
